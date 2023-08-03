@@ -153,7 +153,7 @@ app.post('/login', middlewareVerificarCredencialesLogin, async (req, res) => {
         return res.status(404).json('Usuario o contraseña incorrectos');
     }
     const token = jwt.sign({ email: usuario.email }, process.env.SECRET_KEY);
-    res.send(token);
+    res.json({ token, usuario: { id_usuario: usuario.id_usuario, email: usuario.email, nombre: usuario.nombre, apellido: usuario.apellido, direccion: usuario.direccion, telefono: usuario.telefono } });
 });
 
 // GET para obtener los datos del usuario logeado con validacion de token y middleware
