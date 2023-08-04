@@ -16,9 +16,9 @@ const pool = new Pool({
 const nuevoUsuario = async (usuario) => {
 
     try {
-        let { nombre, apellido, email, direccion, password, telefono } = usuario;
+        let { nombre, apellido, email, direccion, password, telefono, rol } = usuario;
         let passwordHash = bcrypt.hashSync(password);
-        const formatedQuery = format('INSERT INTO usuarios (nombre, apellido, email, direccion, password, telefono) VALUES (%L, %L, %L, %L, %L,%L) RETURNING *', nombre, apellido, email, direccion, passwordHash, telefono);
+        const formatedQuery = format('INSERT INTO usuarios (nombre, apellido, email, direccion, password, telefono, rol) VALUES ( %L, %L, %L, %L, %L,%L, %L) RETURNING *', nombre, apellido, email, direccion, passwordHash, telefono, rol);
         const resultado = await pool.query(formatedQuery);
         if (resultado.rowCount === 1) {
             return "Usuario creado con exito";
@@ -68,11 +68,11 @@ const verificarCredencialesEmail = async (email) => {
     return usuario;
 };
 
-const nuevoServicio = async (servicio) => {
+const nuevoServicio = async (servicio,id_usuario) => {
     try {
-        let { id_usuario, nombre_servicio, img_url, categoria, descripcion, monto, ubicacion } = servicio;
+        let {  nombre_servicio, img_url, categoria, descripcion, monto, region, comuna } = servicio;
         let cantidad = 1;
-        const formatedQuery = format('INSERT INTO servicios (id_usuario,nombre_servicio, img_url, categoria, descripcion, monto, ubicacion, cantidad) VALUES ( %L, %L, %L, %L, %L,%L, %L, %L) RETURNING *', id_usuario, nombre_servicio, img_url, categoria, descripcion, monto, ubicacion, cantidad);
+        const formatedQuery = format('INSERT INTO servicios (id_usuario,nombre_servicio, img_url, categoria, descripcion, monto, region, comuna, cantidad) VALUES ( %L, %L, %L, %L, %L,%L, %L, %L, %L) RETURNING *', id_usuario,nombre_servicio, img_url, categoria, descripcion, monto, region, comuna, cantidad);
         const resultado = await pool.query(formatedQuery);
         if (resultado.rowCount === 1) {
             return "Servicio creado con exito";
@@ -118,8 +118,9 @@ const agregarFavorito = async (id_usuario, id_servicio) => {
 
 const getServiciosPorId = async (id) => {
     try {
-        const formatedQuery = format('SELECT * FROM servicios WHERE id_servicio = %L LIMIT 1', id);
-        const { rows } = await pool.query(formatedQuery);
+        //obtner un servicios con limite  ademas de realizar un cruce con la tabla usuarios para obtener solo el nombre y apellido del usuario
+        const formattedQuery = format('SELECT servicios.*, usuarios.nombre, usuarios.apellido , usuarios.telefono FROM servicios INNER JOIN usuarios ON servicios.id_usuario = usuarios.id_usuario WHERE id_servicio = %L limit 1', id);
+        const { rows } = await pool.query(formattedQuery);
         return rows;
     } catch (error) {
         throw error;
@@ -132,7 +133,8 @@ const obtenerServicios = async ({ limits = 12, order_by = "id_servicio-ASC", pag
     try {
         const [campo, orden] = order_by.split("-");
         const offset = (page - 1) * limits;
-        const formattedQuery = format('SELECT * FROM servicios ORDER BY %I %s LIMIT %s OFFSET %s', campo, orden, limits, offset);
+        //obtner todos los servicios con limite y offset ademas de realizar un cruce con la tabla usuarios para obtener solo el nombre y apellido del usuario
+        const formattedQuery = format('SELECT servicios.*, usuarios.nombre, usuarios.apellido FROM servicios INNER JOIN usuarios ON servicios.id_usuario = usuarios.id_usuario ORDER BY %I %s LIMIT %L OFFSET %L', campo, orden, limits, offset);
         const result = await pool.query(formattedQuery);
         return result.rows;
     } catch (error) {
@@ -173,7 +175,8 @@ const obtenerTotalServicios = async () => {
 //obtener favoritos por id de usuario
 const obtenerFavoritos = async (id_usuario) => {
     try {
-        const formatedQuery = format('SELECT * FROM favoritos WHERE id_usuario = %L', id_usuario);
+        //obtener todos los datos de los servicios favoritos de un usuario, el nombre y apellido del usuario que creo el servicio
+        const formatedQuery = format('SELECT servicios.*, usuarios.nombre, usuarios.apellido FROM favoritos INNER JOIN servicios ON favoritos.id_servicio = servicios.id_servicio INNER JOIN usuarios ON servicios.id_usuario = usuarios.id_usuario WHERE favoritos.id_usuario = %L', id_usuario);
         const { rows } = await pool.query(formatedQuery);
         return rows;
     } catch (error) {
@@ -184,12 +187,21 @@ const obtenerFavoritos = async (id_usuario) => {
 
 // eliminar favorito por id de usuario y id de servicio
 
+
 const eliminarFavorito = async (id_usuario, id_servicio) => {
     try {
         const formatedQuery = format('DELETE FROM favoritos WHERE id_usuario = %L AND id_servicio = %L', id_usuario, id_servicio);
         const { rowCount } = await pool.query(formatedQuery);
 
-        return rowCount > 0;
+        if (rowCount > 0) {
+            // Realiza una consulta adicional para obtener información sobre el favorito eliminado
+            const selectQuery = format('SELECT * FROM favoritos WHERE id_usuario = %L AND id_servicio = %L', id_usuario, id_servicio);
+            const { rows } = await pool.query(selectQuery);
+
+            return rows[0]; // Devuelve la información del favorito eliminado
+        } else {
+            return null; // No se eliminó ningún favorito
+        }
 
     } catch (error) {
         throw error;

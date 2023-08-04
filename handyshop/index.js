@@ -28,6 +28,10 @@ app.use(express.json());
 /* middleware Verificar que esten todos los datos del formulario */
 const middlewareVerificarDatosForm = async (req, res, next) => {
     try {
+        //si el rol viene vacio dejarlo por defecto en usuario
+        if (!req.body.rol) {
+            req.body.rol = "usuario";
+        }
         const { nombre, apellido, email, direccion, password, telefono } = req.body;
         if (nombre && apellido && email && direccion && password && telefono) {
             next();
@@ -60,7 +64,14 @@ const middlewareVerificarCredencialesLogin = async (req, res, next) => {
 //middleware para validar token
 const middlewareValidarToken = (req, res, next) => {
     try {
-        const Authorization = req.header("Authorization");
+        let Authorization = req.header("Authorization");
+        //si no encuentra nada en req.headrer("Authorization") que busque en req.body.headers.Authorization
+        if (!Authorization) {
+            Authorization = req.body.headers.Authorization;
+        }
+        if (!Authorization) {
+            return res.status(401).json('Sin token');
+        }
         const token = Authorization.split("Bearer ")[1];
         if (!token) {
             return res.status(401).json('Sin token');
@@ -83,9 +94,10 @@ const middlewareValidarToken = (req, res, next) => {
 // agregar post de productos con validacion de token y middleware 
 const middlewareVerificarFormServicio = async (req, res, next) => {
     try {
-        console.log("aca jeje" + req.body);
-        const { nombre_servicio, img_url, categoria, descripcion, monto, ubicacion } = req.body;
-        if (nombre_servicio && img_url && categoria && descripcion && monto && ubicacion) {
+        console.log(req.body.headers.servicio);
+        //si el rol viene vacio dejarlo por defecto en usuario
+        const { nombre_servicio, img_url, categoria, descripcion, monto, region, comuna } = req.body.headers.servicio;
+        if (nombre_servicio && img_url && categoria && descripcion && monto && region && comuna) {
             next();
         }
         else {
@@ -179,9 +191,11 @@ app.get('/usuarios', middlewareValidarToken, async (req, res) => {
 // Post para agregar servicios con validacion de token y middleware
 app.post('/servicios', middlewareVerificarFormServicio, middlewareValidarToken, async (req, res) => {
     try {
-        const servicio = req.body;
+        const servicio = req.body.headers.servicio;
         console.log(servicio);
-        const resultado = await nuevoServicio(servicio);
+        const id_usuario = req.body.headers.id_usuario;
+        console.log(id_usuario);
+        const resultado = await nuevoServicio(servicio, id_usuario);
         res.json(resultado);
     } catch (error) {
         res.status(500).json(error.message);
@@ -247,18 +261,22 @@ app.get('/servicios', middlewareGetServicios, async (req, res) => {
         const result = await obtenerServicios({ limits: parsedLimits, order_by: `${campo}-${orden}`, page: parsedPage });
         const total = await obtenerTotalServicios();
         const totalPaginas = Math.ceil(total / parsedLimits);
-        const HATEOAS = {
+        const hateoas = {
             first: `/servicios?limits=${parsedLimits}&order_by=${campo}-${orden}&page=1`,
             prev: `/servicios?limits=${parsedLimits}&order_by=${campo}-${orden}&page=${parsedPage - 1}`,
             next: `/servicios?limits=${parsedLimits}&order_by=${campo}-${orden}&page=${parsedPage + 1}`,
-            last: `/servicios?limits=${parsedLimits}&order_by=${campo}-${orden}&page=${totalPaginas}`
+            last: `/servicios?limits=${parsedLimits}&order_by=${campo}-${orden}&page=${totalPaginas}`,
+            serviciosTotal: total,
+            totalPaginas: totalPaginas
         };
 
-        enviarRespuestaExitosa(res, { result, HATEOAS });
+        enviarRespuestaExitosa(res, { result, hateoas });
     } catch (error) {
         enviarRespuestaError(res, error.message, error.code || 500);
     }
 });
+
+
 
 //crear una ruta get para obtener todos los datos de la tabla consulta aplicando filtros
 /* app.get('/servicios/filtros', middlewareGetServicios, async (req, res) => {
@@ -327,7 +345,7 @@ app.delete('/servicios/:id_servicio/:id_usuario', middlewareValidarToken, middle
         console.log(id_servicio, id_usuario);
         const resultado = await eliminarServicio(id_servicio, id_usuario);
         if (resultado) {
-            enviarRespuestaExitosa(res, 'Servicio eliminado correctamente');
+            enviarRespuestaExitosa(res, 'Servicio eliminado correctamente',resultado);
         } else {
             enviarRespuestaNoEncontrado(res, 'El servicio no fue encontrado');
         }
@@ -372,7 +390,7 @@ app.delete('/usuarios/:id', middlewareValidarToken, middlewareValidarAdmin, midd
 
 //PUT modificar servicios con validacion de token y middleware
 
-app.put('/servicios/:id', middlewareValidarToken, middlewareVerificarFormServicio ,middlewareGetServicios, async (req, res) => {
+app.put('/servicios/:id', middlewareValidarToken, middlewareVerificarFormServicio, middlewareGetServicios, async (req, res) => {
     try {
         const id = req.params.id;
         const datos = req.body;
@@ -389,7 +407,7 @@ app.put('/servicios/:id', middlewareValidarToken, middlewareVerificarFormServici
 
 //PUT modificar usuarios con validacion de token y middleware
 
-app.put('/usuarios/:id', middlewareValidarToken, middlewareVerificarDatosForm ,middlewareGetServicios, async (req, res) => {
+app.put('/usuarios/:id', middlewareValidarToken, middlewareVerificarDatosForm, middlewareGetServicios, async (req, res) => {
     try {
         const id = req.params.id;
         const datos = req.body;
@@ -424,10 +442,39 @@ const enviarRespuestaNoEncontrado = (res, mensaje) => {
 
 
 
+/* headers
+:
+Authorization
+:
+"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImRpZWdvQGdtYWlsLmNvbSIsImlhdCI6MTY5MTA5MzY4MH0.3HEJ7EZSssjAxxDGGXkJtqQ4hCQwn7HS4V-i-KSnlDI"
+id_usuario
+:
+"1"
+servicio
+:
+categoria
+:
+"Industrial"
+comuna
+:
+"Lo Espejo"
+descripcion
+:
+"test111"
+img_url
+:
+"test1"
+monto
+:
+"1234"
+nombre_servicio
+:
+"test1"
+region
+:
+"Metropolitana"
 
-
-
-
+ */
 
 
 
