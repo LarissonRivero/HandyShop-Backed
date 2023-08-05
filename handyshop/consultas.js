@@ -184,6 +184,45 @@ const obtenerFavoritos = async (id_usuario) => {
     }
 };
 
+//obtener los servicios creados por un usuario
+const getServiciosPorIdUsuario = async (id_usuario) => {
+    try {
+        //obtener todos los datos de los servicios creados por un usuario, el nombre y apellido del usuario que creo el servicio
+        const formatedQuery = format('SELECT servicios.*, usuarios.nombre, usuarios.apellido FROM servicios INNER JOIN usuarios ON servicios.id_usuario = usuarios.id_usuario WHERE servicios.id_usuario = %L', id_usuario);
+        const { rows } = await pool.query(formatedQuery);
+        return rows;
+    } catch (error) {
+        throw error;
+    }
+};
+
+//obtener un servicio creado por un usuario por id de servicio y validando que el usuario sea el creador del servicio
+const getServiciosPorIdUsuarioServicio = async (id_usuario, id_servicio) => {
+    try {
+        // Validar si el usuario es el creador del servicio
+        const validarUsuarioQuery = format('SELECT COUNT(*) FROM servicios WHERE id_usuario = %L AND id_servicio = %L', id_usuario, id_servicio);
+        const { rows: usuarioValido } = await pool.query(validarUsuarioQuery);
+
+        if (usuarioValido[0].count === '1') {
+            // Obtener el servicio por ID de servicio y ID de usuario
+            const obtenerServicioQuery = format('SELECT servicios.*, usuarios.nombre, usuarios.apellido FROM servicios INNER JOIN usuarios ON servicios.id_usuario = usuarios.id_usuario WHERE servicios.id_usuario = %L AND servicios.id_servicio = %L', id_usuario, id_servicio);
+            const { rows } = await pool.query(obtenerServicioQuery);
+
+            if (rows.length > 0) {
+                return rows;
+            } else {
+                throw { code: 404, message: "No se encontró el servicio" };
+            }
+        } else {
+            throw { code: 403, message: "Acceso denegado: Usuario no es el creador del servicio o el servicio no existe" };
+        }
+    } catch (error) {
+        throw error;
+    }
+};
+    
+
+
 
 // eliminar favorito por id de usuario y id de servicio
 
@@ -325,6 +364,8 @@ module.exports = {
     eliminarServicio,
     eliminarUsuario,
     modificarServicio,
-    modificarUsuario
+    modificarUsuario,
+    getServiciosPorIdUsuario,
+    getServiciosPorIdUsuarioServicio
     /* obtenerServiciosFiltro */
 }

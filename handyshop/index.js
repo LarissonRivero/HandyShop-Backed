@@ -12,6 +12,8 @@ const { nuevoUsuario,
     eliminarUsuario,
     modificarServicio,
     modificarUsuario,
+    getServiciosPorIdUsuario,
+    getServiciosPorIdUsuarioServicio,
     obtenerServiciosFiltro } = require('./consultas');
 const express = require('express');
 const jwt = require("jsonwebtoken");
@@ -144,7 +146,6 @@ const middlewareGetServicios = async (req, res, next) => {
 
 
 /* Post para agregar usuarios con validacion de datos y middleware */
-
 app.post('/usuarios', middlewareVerificarDatosForm, async (req, res) => {
     try {
         const usuarios = req.body;
@@ -157,7 +158,6 @@ app.post('/usuarios', middlewareVerificarDatosForm, async (req, res) => {
 });
 
 /* Post logearse, esto verifica que el usuario exista y que la contraseña sea correcta */
-
 app.post('/login', middlewareVerificarCredencialesLogin, async (req, res) => {
     const { email, password } = req.body;
     const usuario = await verificarCredenciales(email, password);
@@ -230,7 +230,7 @@ app.get('/servicios/:id', middlewareGetServicios, async (req, res) => {
 
 
 
-//Get para obtener los datos de los servicios con paginacion y ordenamiento con validacion de token y middleware
+//Get para obtener los datos de los servicios con paginacion y ordenamiento con validacion  y middleware
 
 app.get('/servicios', middlewareGetServicios, async (req, res) => {
     try {
@@ -275,6 +275,38 @@ app.get('/servicios', middlewareGetServicios, async (req, res) => {
         enviarRespuestaError(res, error.message, error.code || 500);
     }
 });
+
+//Get para obtener los servicios de un usuario con validacion de token y middleware
+app.get('/servicios/usuario/:id', middlewareGetServicios, async (req, res) => {
+    try {
+        const id = req.params.id;
+        const servicio = await getServiciosPorIdUsuario(id);
+        // validar que no existe ningun servicio con de ese usuario e indicar que este no tine servicios
+        if (!servicio) {
+            return res.status(404).json({ message: "Servicio no encontrado" });
+        }
+        res.json(servicio);
+    } catch (error) {   
+        res.status(500).json(error.message);
+    }
+});
+
+//get para obtener un servicio por id pertececiente a un usuario con validacion de token y middleware
+app.get('/servicios/usuario/:id_usuario/:id_servicio', middlewareGetServicios, async (req, res) => {
+    try {
+        const id_usuario = req.params.id_usuario;
+        const id_servicio = req.params.id_servicio;
+        const servicio = await getServiciosPorIdUsuarioServicio(id_usuario, id_servicio);
+        // validar que no existe ningun servicio con de ese usuario e indicar que este no tine servicios
+        if (!servicio) {
+            return res.status(404).json({ message: "Servicio no encontrado" });
+        }
+        res.json(servicio);
+    } catch (error) {
+        res.status(500).json(error.message);
+    }
+});
+
 
 
 
