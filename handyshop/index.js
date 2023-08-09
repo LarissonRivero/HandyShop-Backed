@@ -187,7 +187,6 @@ app.get('/usuarios', middlewareValidarToken, async (req, res) => {
 
 });
 
-
 // Post para agregar servicios con validacion de token y middleware
 app.post('/servicios', middlewareVerificarFormServicio, middlewareValidarToken, async (req, res) => {
     try {
