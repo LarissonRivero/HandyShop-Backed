@@ -85,7 +85,7 @@ const getServiciosPorIdUsuario = async (id_usuario) => {
 };
 
 //obtener un servicio creado por un usuario por id de servicio y validando que el usuario sea el creador del servicio
-const getServiciosPorIdUsuarioIdServicio = async (id_usuario, id_servicio) => {
+const getServiciosPorIdUsuarioServicio = async (id_usuario, id_servicio) => {
     try {
         // Validar si el usuario es el creador del servicio
         const validarUsuarioQuery = format('SELECT COUNT(*) FROM servicios WHERE id_usuario = %L AND id_servicio = %L', id_usuario, id_servicio);
@@ -119,9 +119,10 @@ const eliminarServicio = async (id_servicio, id_usuario) => {
     }
 };
 
-const modificarServicio = async (id_servicio, { nombre, descripcion, precio, categoria, metal, imagen }) => {
+const modificarServicio = async (id_servicio, {  nombre_servicio, img_url, categoria, descripcion, monto, region, comuna } ) => {
     try {
-        const formatedQuery = format('UPDATE servicios SET nombre = %L, descripcion = %L, precio = %L, categoria = %L, metal = %L, imagen = %L WHERE id_servicio = %L RETURNING *', nombre, descripcion, precio, categoria, metal, imagen, id_servicio);
+        let cantidad= 1;
+        const formatedQuery = format('UPDATE servicios SET nombre_servicio = %L, img_url = %L, categoria = %L, descripcion = %L, monto = %L, region = %L, comuna = %L, cantidad = %L WHERE id_servicio = %L RETURNING *', nombre_servicio, img_url, categoria, descripcion, monto, region, comuna, cantidad, id_servicio);
         const { rows } = await pool.query(formatedQuery);
         return rows[0];
     } catch (error) {
@@ -136,7 +137,7 @@ module.exports = {
     obtenerServicios,
     obtenerTotalServicios,
     getServiciosPorIdUsuario,
-    getServiciosPorIdUsuarioIdServicio,
+    getServiciosPorIdUsuarioServicio,
     eliminarServicio,
     modificarServicio
 };

@@ -64,6 +64,8 @@ const modifyUsuario = async (req, res) => {
     try {
         const id = req.params.id;
         const datos = req.body;
+        console.log(datos);
+        console.log(id);
         const resultado = await UsuariosModel.modificarUsuario(id, datos);
         if (resultado) {
             enviarRespuestaExitosa(res, 'Usuario modificado correctamente');

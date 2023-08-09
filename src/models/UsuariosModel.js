@@ -45,9 +45,9 @@ const eliminarUsuario = async (id_usuario) => {
     }
 };
 
-const modificarUsuario = async (id_usuario, { nombre, apellido, email, password, telefono, imagen }) => {
+const modificarUsuario = async (id_usuario, { nombre, apellido, telefono, direccion }) => {
     try {
-        const formatedQuery = format('UPDATE usuarios SET nombre = %L, apellido = %L, email = %L, password = %L, telefono = %L, imagen = %L WHERE id_usuario = %L RETURNING *', nombre, apellido, email, password, telefono, imagen, id_usuario);
+        const formatedQuery = format('UPDATE usuarios SET nombre = %L, apellido = %L, telefono = %L, direccion = %L WHERE id_usuario = %L RETURNING *', nombre, apellido, telefono, direccion, id_usuario);
         const { rows } = await pool.query(formatedQuery);
         return rows[0];
     } catch (error) {

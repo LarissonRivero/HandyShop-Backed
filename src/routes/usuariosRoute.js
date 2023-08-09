@@ -8,7 +8,7 @@ const Log = require("../middlewares/Log");
 router.post("/", ValidarData.middlewareVerificarDatosForm, UsuariosController.addUsuario);  
 router.post("/login", ValidarData.middlewareVerificarCredencialesLogin, UsuariosController.login);
 router.get("/", Auth.verificarToken, Log.middlewareGetData, UsuariosController.getUsuario);
-router.delete("/:id", Auth.verificarToken, UsuariosController.deleteUsuario);
-router.put("/:id", Auth.verificarToken, UsuariosController.modifyUsuario);
+router.delete("/:id", Auth.verificarToken ,UsuariosController.deleteUsuario);
+router.put("/:id", Auth.verificarToken,ValidarData.middlewareVerificarDatosPutUsuarios, UsuariosController.modifyUsuario);
 
 module.exports = router;

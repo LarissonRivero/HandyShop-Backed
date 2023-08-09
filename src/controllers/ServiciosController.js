@@ -5,9 +5,9 @@ const {enviarRespuestaExitosa, enviarRespuestaError, enviarRespuestaNoEncontrado
 // Post para agregar servicios con validacion de token y middleware
 const addServicio = async (req, res) => {
     try {
-        const servicio = req.body.headers.servicio;
+        const servicio = req.body || req.body.headers.servicio;
         console.log(servicio);
-        const id_usuario = req.body.headers.id_usuario;
+        const id_usuario = servicio.id_usuario || req.body.headers.id_usuario;
         console.log(id_usuario);
         const resultado = await ServiciosModel.nuevoServicio(servicio, id_usuario);
         res.json(resultado);

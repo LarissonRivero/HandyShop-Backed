@@ -7,9 +7,9 @@ const addFav = async (req, res) => {
         const { id_usuario, id_servicio } = req.body;
         console.log(id_usuario, id_servicio);
         const resultado = await FavModel.agregarFavorito(id_usuario, id_servicio);
-        res.json(resultado);
+        enviarRespuestaExitosa(res, resultado);
     } catch (error) {
-        res.status(500).json(error.message);
+        enviarRespuestaError(res, 'Ha ocurrido un error al añadir a favoritos');
     }
 };
 

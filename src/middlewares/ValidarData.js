@@ -38,9 +38,9 @@ const middlewareVerificarCredencialesLogin = async (req, res, next) => {
 
 const middlewareVerificarFormServicio = async (req, res, next) => {
     try {
-        console.log(req.body.headers.servicio);
+        console.log(req.body);
         //si el rol viene vacio dejarlo por defecto en usuario
-        const { nombre_servicio, img_url, categoria, descripcion, monto, region, comuna } = req.body.headers.servicio;
+        const { nombre_servicio, img_url, categoria, descripcion, monto, region, comuna } = req.body || req.body.headers.servicio;
         if (nombre_servicio && img_url && categoria && descripcion && monto && region && comuna) {
             next();
         }
@@ -83,12 +83,34 @@ const middlewareValidarAdmin = async (req, res, next) => {
     }
 };
 
+
+const middlewareVerificarDatosPutUsuarios = async (req, res, next) => {
+    try {
+        //si el rol viene vacio dejarlo por defecto en usuario
+        if (!req.body.rol) {
+            req.body.rol = "usuario";
+        }
+        const { nombre, apellido,  direccion, telefono } = req.body;
+        if (nombre && apellido  && direccion  && telefono) {
+            next();
+        }
+        else {
+            res.status(401).json('Datos incompletos');
+        }
+    }
+    catch (error) {
+        console.log(error);
+    }
+};
+
+
 module.exports = {
     middlewareVerificarDatosForm,
     middlewareVerificarCredencialesLogin,
     middlewareVerificarFormServicio,
     middlewareVerificarFaritos,
-    middlewareValidarAdmin
+    middlewareValidarAdmin,
+    middlewareVerificarDatosPutUsuarios
     
 };
 

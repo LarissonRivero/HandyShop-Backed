@@ -25,7 +25,7 @@ const agregarFavorito = async (id_usuario, id_servicio) => {
 const obtenerFavoritos = async (id_usuario) => {
     try {
         //obtener todos los datos de los servicios favoritos de un usuario, el nombre y apellido del usuario que creo el servicio
-        const formatedQuery = format('SELECT servicios.*, usuarios.nombre, usuarios.apellido FROM favoritos INNER JOIN servicios ON favoritos.id_servicio = servicios.id_servicio INNER JOIN usuarios ON servicios.id_usuario = usuarios.id_usuario WHERE favoritos.id_usuario = %L', id_usuario);
+        const formatedQuery = format('SELECT id_favorito, servicios.*, usuarios.nombre, usuarios.apellido FROM favoritos INNER JOIN servicios ON favoritos.id_servicio = servicios.id_servicio INNER JOIN usuarios ON servicios.id_usuario = usuarios.id_usuario WHERE favoritos.id_usuario = %L', id_usuario);
         const { rows } = await pool.query(formatedQuery);
         return rows;
     } catch (error) {
@@ -43,8 +43,7 @@ const eliminarFavorito = async (id_usuario, id_servicio) => {
             // Realiza una consulta adicional para obtener información sobre el favorito eliminado
             const selectQuery = format('SELECT * FROM favoritos WHERE id_usuario = %L AND id_servicio = %L', id_usuario, id_servicio);
             const { rows } = await pool.query(selectQuery);
-
-            return rows[0]; // Devuelve la información del favorito eliminado
+            return rows[0]; // Retorna el favorito eliminado
         } else {
             return null; // No se eliminó ningún favorito
         }
