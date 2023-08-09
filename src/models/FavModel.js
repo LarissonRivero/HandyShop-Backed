@@ -1,6 +1,5 @@
 const pool = require('../Config/db');
 const format = require('pg-format');
-const {enviarRespuestaExitosa, enviarRespuestaError, enviarRespuestaNoEncontrado} = require('../middlewares/response');
 
 //agregar servicio a favoritos
 const agregarFavorito = async (id_usuario, id_servicio) => {
@@ -38,16 +37,8 @@ const eliminarFavorito = async (id_usuario, id_servicio) => {
     try {
         const formatedQuery = format('DELETE FROM favoritos WHERE id_usuario = %L AND id_servicio = %L', id_usuario, id_servicio);
         const { rowCount } = await pool.query(formatedQuery);
-
-        if (rowCount > 0) {
-            // Realiza una consulta adicional para obtener información sobre el favorito eliminado
-            const selectQuery = format('SELECT * FROM favoritos WHERE id_usuario = %L AND id_servicio = %L', id_usuario, id_servicio);
-            const { rows } = await pool.query(selectQuery);
-            return rows[0]; // Retorna el favorito eliminado
-        } else {
-            return null; // No se eliminó ningún favorito
-        }
-
+        return rowCount;
+        console.log(rowCount);
     } catch (error) {
         throw error;
     }

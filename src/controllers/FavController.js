@@ -30,6 +30,7 @@ const deleteFav = async (req, res) => {
     try {
         const id_usuario = req.params.id_usuario;
         const id_servicio = req.params.id_servicio;
+        console.log(id_usuario, id_servicio);
         const resultado = await FavModel.eliminarFavorito(id_usuario, id_servicio);
         if (resultado) {
             enviarRespuestaExitosa(res, 'Favorito eliminado correctamente');

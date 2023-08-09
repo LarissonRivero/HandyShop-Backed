@@ -10,9 +10,9 @@ const addServicio = async (req, res) => {
         const id_usuario = servicio.id_usuario || req.body.headers.id_usuario;
         console.log(id_usuario);
         const resultado = await ServiciosModel.nuevoServicio(servicio, id_usuario);
-        res.json(resultado);
+        enviarRespuestaExitosa(res, resultado);
     } catch (error) {
-        res.status(500).json(error.message);
+        enviarRespuestaError(res, error.message, error.code);
     }
 }
 
@@ -23,12 +23,13 @@ const getServiciosPorIdServicio = async (req, res) => {
         console.log(id);
         const servicio = await ServiciosModel.getServiciosPorId(id);
         if (!servicio) {
-            return res.status(404).json({ message: "Servicio no encontrado" });
+            enviarRespuestaNoEncontrado(res, "Servicio no encontrado");
+            return;
         }
-        res.json(servicio);
+        enviarRespuestaExitosa(res, servicio);
     } catch (error) {
-        res.status(500).json(error.message);
-    }
+        enviarRespuestaError(res, error.message, error.code);
+        }
 };
 
 
@@ -86,12 +87,11 @@ const getServiciosPorIdUsuario = async (req, res) => {
         const servicio = await ServiciosModel.getServiciosPorIdUsuario(id);
         // validar que no existe ningun servicio con de ese usuario e indicar que este no tine servicios
         if (!servicio) {
-            return res.status(404).json({ message: "Servicio no encontrado" });
+                enviarRespuestaNoEncontrado(res, "Servicio no encontrado", 404);
         }
-        res.json(servicio);
+        enviarRespuestaExitosa(res, servicio);
     } catch (error) {   
-        res.status(500).json(error.message);
-    }
+        enviarRespuestaError(res, error.message, error.code);    }
 };
 
 
@@ -107,8 +107,7 @@ try {
         }
         res.json(servicio);
     } catch (error) {
-        res.status(500).json(error.message);
-    }
+        enviarRespuestaError(res, error.message, error.code);    }
 };
 
 
