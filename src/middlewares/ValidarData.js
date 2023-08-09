@@ -39,11 +39,12 @@ const middlewareVerificarCredencialesLogin = async (req, res, next) => {
 const middlewareVerificarFormServicio = async (req, res, next) => {
     try {
         console.log(req.body);
-        //si el rol viene vacio dejarlo por defecto en usuario
-        const { nombre_servicio, img_url, categoria, descripcion, monto, region, comuna } = req.body || req.body.headers.servicio;
+        //consultar si el id_usuario existen los datos de la tabla servicios
+        const { nombre_servicio, img_url, categoria, descripcion, monto, region,comuna } = req.body.servicio || req.body;
         if (nombre_servicio && img_url && categoria && descripcion && monto && region && comuna) {
             next();
         }
+
         else {
             res.status(401).json('Datos incompletos');
         }
