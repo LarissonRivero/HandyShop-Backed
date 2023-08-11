@@ -104,6 +104,22 @@ const middlewareVerificarDatosPutUsuarios = async (req, res, next) => {
     }
 };
 
+const middlewareVerificarPassword = async (req, res, next) => {
+    try {
+        const { password } = req.body;
+        console.log(password);
+        if (password) {
+            next();
+        }
+        else {
+            res.status(401).json('Datos incompletos');
+        }
+    }
+    catch (error) {
+        console.log(error);
+    }
+};
+
 
 module.exports = {
     middlewareVerificarDatosForm,
@@ -111,7 +127,8 @@ module.exports = {
     middlewareVerificarFormServicio,
     middlewareVerificarFaritos,
     middlewareValidarAdmin,
-    middlewareVerificarDatosPutUsuarios
+    middlewareVerificarDatosPutUsuarios,
+    middlewareVerificarPassword
     
 };
 

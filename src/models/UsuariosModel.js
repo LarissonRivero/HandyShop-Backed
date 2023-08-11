@@ -76,10 +76,32 @@ const verificarCredencialesEmail = async (email) => {
     return usuario;
 };
 
+const modificarPass = async (id_usuario,  password ) => {
+    try {
+        //validar si el usuario existe en la base de datos
+    
+        let passwordHash = bcrypt.hashSync(password);
+        const formatedQuery = format('UPDATE usuarios SET password = %L WHERE id_usuario = %L RETURNING *', passwordHash, id_usuario);
+        const data = await pool.query(formatedQuery);
+        console.log(data);
+        return data;
+    } catch (error) {
+        console.log(error);
+        throw error;
+
+    }
+};
+
+
+
+
+
+
 module.exports = {
     nuevoUsuario,
     eliminarUsuario,
     modificarUsuario,
     verificarCredenciales,
-    verificarCredencialesEmail
+    verificarCredencialesEmail,
+    modificarPass
 };
