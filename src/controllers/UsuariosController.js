@@ -1,4 +1,4 @@
-const UsuariosModel = require('/src/models/UsuariosModel');
+const UsuariosModel = require('../models/UsuariosModel');
 const {enviarRespuestaExitosa, enviarRespuestaError, enviarRespuestaNoEncontrado} = require('../middlewares/response');
 const dotenv = require('dotenv');
 const jwt = require('jsonwebtoken');
