@@ -1,4 +1,4 @@
-const pool = require('../Config/db');
+const pool = require('../config/db');
 const bcrypt = require('bcryptjs')
 const format = require('pg-format');
 
