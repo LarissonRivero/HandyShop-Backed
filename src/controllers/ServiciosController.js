@@ -5,9 +5,9 @@ const {enviarRespuestaExitosa, enviarRespuestaError, enviarRespuestaNoEncontrado
 // Post para agregar servicios con validacion de token y middleware
 const addServicio = async (req, res) => {
     try {
-        const servicio = req.body || req.body.headers.servicio;
+        const servicio = req.body.servicio || req.body;
         console.log(servicio);
-        const id_usuario = servicio.id_usuario || req.body.headers.id_usuario;
+        const id_usuario =  req.body.id_usuario || servicio.id_usuario ;
         console.log(id_usuario);
         const resultado = await ServiciosModel.nuevoServicio(servicio, id_usuario);
         enviarRespuestaExitosa(res, resultado);
@@ -133,7 +133,7 @@ const eliminarServicio = async (req, res) => {
 const modificarServicio = async (req, res) => {
 try {
         const id = req.params.id;
-        const datos = req.body;
+        const datos = req.body.servicio;
         const resultado = await ServiciosModel.modificarServicio(id, datos);
         if (resultado) {
             enviarRespuestaExitosa(res, 'Servicio modificado correctamente');
@@ -144,6 +144,9 @@ try {
         enviarRespuestaError(res, 'Ha ocurrido un error al modificar el servicio');
     }
 };
+
+
+
 
 module.exports = {
     addServicio,
