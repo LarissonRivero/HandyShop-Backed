@@ -15,10 +15,10 @@ CREATE TABLE IF NOT EXISTS usuarios (
     id_usuario SERIAL PRIMARY KEY,
     nombre VARCHAR(250) NOT NULL,
     apellido VARCHAR(250) NOT NULL,
-    email VARCHAR(250) NOT NULL UNIQUE, 
+    email VARCHAR(250) NOT NULL UNIQUE, -- Agregamos UNIQUE para hacer que el email sea único
     direccion VARCHAR(250) NOT NULL,
     password VARCHAR(255) NOT NULL,
-    telefono VARCHAR(250) NOT NULL UNIQUE, 
+    telefono VARCHAR(250) NOT NULL UNIQUE, -- Agregamos UNIQUE para hacer que el teléfono sea único
     rol VARCHAR(50) NOT NULL DEFAULT 'usuario',
     fecha_registro TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
@@ -116,6 +116,7 @@ show tables;
 
 
 INSERT INTO servicios (id_usuario, nombre_servicio, img_url, categoria, descripcion, monto, region, comuna)
+<<<<<<< HEAD
 VALUES (1, 'Electricistista', 'https://rittalnet.cl/wp-content/uploads/2022/11/que-es-un-tablero-electrico.jpg', 'Hogar', 'Reparación y mantenimiento eléctrico', '20000', 'Metropolitana', 'Santiago');
 INSERT INTO servicios (id_usuario, nombre_servicio, img_url, categoria, descripcion, monto, region, comuna)
 VALUES(2, 'Albañil', 'https://agusgarama.com/wp-content/uploads/2022/05/las-herramientas-de-trabajo-habituales-de-un-albanil-en-san-sebastian-scaled.jpeg', 'Hogar', 'Construcción y reparación de estructuras', '30000', 'Metropolitana', 'Cerrillos');
@@ -186,5 +187,9 @@ INSERT INTO favoritos (id_servicio, id_usuario) VALUES (16, 5);
 INSERT INTO favoritos (id_servicio, id_usuario) VALUES (17, 3);
 INSERT INTO favoritos (id_servicio, id_usuario) VALUES (18, 4);
 INSERT INTO favoritos (id_servicio, id_usuario) VALUES (19, 1);
+<<<<<<< HEAD
+=======
+INSERT INTO favoritos (id_servicio, id_usuario) VALUES (20, 5);
+>>>>>>> main
 
 DELETE FROM servicios WHERE id_servicio = 1 AND id_usuario = 1;
