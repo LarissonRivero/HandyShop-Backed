@@ -2,11 +2,11 @@ const pool = require('../config/db');
 const format = require('pg-format');
 
 //crear un nuevo servicio
-const nuevoServicio = async (servicio,id_usuario) => {
+const nuevoServicio = async (servicio, id_usuario) => {
     try {
-        let {  nombre_servicio, img_url, categoria, descripcion, monto, region, comuna } = servicio;
+        let { nombre_servicio, img_url, categoria, descripcion, monto, region, comuna } = servicio;
         let cantidad = 1;
-        const formatedQuery = format('INSERT INTO servicios (id_usuario,nombre_servicio, img_url, categoria, descripcion, monto, region, comuna, cantidad) VALUES ( %L, %L, %L, %L, %L,%L, %L, %L, %L) RETURNING *', id_usuario,nombre_servicio, img_url, categoria, descripcion, monto, region, comuna, cantidad);
+        const formatedQuery = format('INSERT INTO servicios (id_usuario,nombre_servicio, img_url, categoria, descripcion, monto, region, comuna, cantidad) VALUES ( %L, %L, %L, %L, %L,%L, %L, %L, %L) RETURNING *', id_usuario, nombre_servicio, img_url, categoria, descripcion, monto, region, comuna, cantidad);
         const resultado = await pool.query(formatedQuery);
         if (resultado.rowCount === 1) {
             return "Servicio creado con exito";
@@ -118,9 +118,9 @@ const eliminarServicio = async (id_servicio, id_usuario) => {
     }
 };
 
-const modificarServicio = async (id_servicio, {  nombre_servicio, img_url, categoria, descripcion, monto, region, comuna } ) => {
+const modificarServicio = async (id_servicio, { nombre_servicio, img_url, categoria, descripcion, monto, region, comuna }) => {
     try {
-        let cantidad= 1;
+        let cantidad = 1;
         const formatedQuery = format('UPDATE servicios SET nombre_servicio = %L, img_url = %L, categoria = %L, descripcion = %L, monto = %L, region = %L, comuna = %L, cantidad = %L WHERE id_servicio = %L RETURNING *', nombre_servicio, img_url, categoria, descripcion, monto, region, comuna, cantidad, id_servicio);
         const { rows } = await pool.query(formatedQuery);
         return rows[0];
@@ -128,6 +128,30 @@ const modificarServicio = async (id_servicio, {  nombre_servicio, img_url, categ
         throw error;
     }
 };
+
+const obtenerServiciosfiltro = async ({ monto_max,monto_min,categoria,region}) => {
+    try
+    {
+        let filtros = []
+        if (monto_max) filtros.push(`monto <= ${monto_max}`)
+        if (monto_min) filtros.push(`monto >= ${monto_min}`)
+        if (categoria) filtros.push(`categoria = '${categoria}'`)
+        if (region) filtros.push(`region = '${region}'`)
+    /*     if (stock_min) filtros.push(`stock >= ${stock_min}`)
+     */    let consulta = "SELECT servicios.*, usuarios.nombre, usuarios.apellido FROM servicios INNER JOIN usuarios ON servicios.id_usuario = usuarios.id_usuario "
+        if (filtros.length > 0) {
+            filtros = filtros.join(" AND ")
+            consulta += ` WHERE ${filtros}`
+        }
+        const { rows: servicios } = await pool.query(consulta)
+        return servicios
+    }
+    catch (error)
+    {
+        throw error
+    }
+}
+
 
 
 module.exports = {
@@ -138,5 +162,6 @@ module.exports = {
     getServiciosPorIdUsuario,
     getServiciosPorIdUsuarioServicio,
     eliminarServicio,
-    modificarServicio
+    modificarServicio,
+    obtenerServiciosfiltro
 };
