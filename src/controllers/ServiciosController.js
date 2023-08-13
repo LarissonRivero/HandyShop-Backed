@@ -1,5 +1,5 @@
 const ServiciosModel = require('../models/ServiciosModel');
-const {enviarRespuestaExitosa, enviarRespuestaError, enviarRespuestaNoEncontrado} = require('../middlewares/response');
+const { enviarRespuestaExitosa, enviarRespuestaError, enviarRespuestaNoEncontrado } = require('../middlewares/response');
 
 
 // Post para agregar servicios con validacion de token y middleware
@@ -7,7 +7,7 @@ const addServicio = async (req, res) => {
     try {
         const servicio = req.body.servicio || req.body;
         console.log(servicio);
-        const id_usuario =  req.body.id_usuario || servicio.id_usuario ;
+        const id_usuario = req.body.id_usuario || servicio.id_usuario;
         console.log(id_usuario);
         const resultado = await ServiciosModel.nuevoServicio(servicio, id_usuario);
         enviarRespuestaExitosa(res, resultado);
@@ -29,7 +29,7 @@ const getServiciosPorIdServicio = async (req, res) => {
         enviarRespuestaExitosa(res, servicio);
     } catch (error) {
         enviarRespuestaError(res, error.message, error.code);
-        }
+    }
 };
 
 
@@ -79,6 +79,17 @@ const getServiciosPagination = async (req, res) => {
     }
 };
 
+//obtener servicios por categoria, monto_max, monto_min, ubicacion 
+const getServiciosFiltros = async (req, res) => {
+    try {
+        const queryStrings = req.query;
+        const result = await ServiciosModel.obtenerServiciosfiltro(queryStrings);
+        res.json(result);
+    } catch (error) {
+        enviarRespuestaError(res, error.message, error.code || 500);
+    }
+
+} 
 
 //Get para obtener los servicios de un usuario con validacion de token y middleware
 const getServiciosPorIdUsuario = async (req, res) => {
@@ -87,17 +98,18 @@ const getServiciosPorIdUsuario = async (req, res) => {
         const servicio = await ServiciosModel.getServiciosPorIdUsuario(id);
         // validar que no existe ningun servicio con de ese usuario e indicar que este no tine servicios
         if (!servicio) {
-                enviarRespuestaNoEncontrado(res, "Servicio no encontrado", 404);
+            enviarRespuestaNoEncontrado(res, "Servicio no encontrado", 404);
         }
         enviarRespuestaExitosa(res, servicio);
-    } catch (error) {   
-        enviarRespuestaError(res, error.message, error.code);    }
+    } catch (error) {
+        enviarRespuestaError(res, error.message, error.code);
+    }
 };
 
 
 //get para obtener un servicio por id pertececiente a un usuario con validacion de token y middleware
 const getServiciosPorIdUsuarioidServicio = async (req, res) => {
-try {
+    try {
         const id_usuario = req.params.id_usuario;
         const id_servicio = req.params.id_servicio;
         const servicio = await ServiciosModel.getServiciosPorIdUsuarioServicio(id_usuario, id_servicio);
@@ -107,7 +119,8 @@ try {
         }
         res.json(servicio);
     } catch (error) {
-        enviarRespuestaError(res, error.message, error.code);    }
+        enviarRespuestaError(res, error.message, error.code);
+    }
 };
 
 
@@ -119,7 +132,7 @@ const eliminarServicio = async (req, res) => {
         console.log(id_servicio, id_usuario);
         const resultado = await ServiciosModel.eliminarServicio(id_servicio, id_usuario);
         if (resultado) {
-            enviarRespuestaExitosa(res, 'Servicio eliminado correctamente',resultado);
+            enviarRespuestaExitosa(res, 'Servicio eliminado correctamente', resultado);
         } else {
             enviarRespuestaNoEncontrado(res, 'El servicio no fue encontrado');
         }
@@ -131,7 +144,7 @@ const eliminarServicio = async (req, res) => {
 
 //PUT modificar servicios con validacion de token y middleware
 const modificarServicio = async (req, res) => {
-try {
+    try {
         const id = req.params.id;
         const datos = req.body.servicio;
         const resultado = await ServiciosModel.modificarServicio(id, datos);
@@ -155,5 +168,6 @@ module.exports = {
     getServiciosPorIdUsuarioidServicio,
     getServiciosPagination,
     eliminarServicio,
-    modificarServicio
+    modificarServicio,
+    getServiciosFiltros
 }
