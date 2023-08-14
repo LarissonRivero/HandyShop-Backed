@@ -18,7 +18,7 @@ const anadirCompra = async (data) => {
         const { rowCount } = pool.query(
             `INSERT INTO compra_servicio (id_compra, id_servicio) VALUES ${servicioValues}`
         );
-        return rowCount;
+        return compraResult.rows[0].id_compra;
 
     } catch (error) {
         console.log(error);
