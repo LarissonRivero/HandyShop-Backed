@@ -49,17 +49,23 @@ CREATE TABLE IF NOT EXISTS favoritos (
     FOREIGN KEY (id_usuario) REFERENCES usuarios(id_usuario) ON DELETE CASCADE,
     FOREIGN KEY (id_servicio) REFERENCES servicios(id_servicio) ON DELETE CASCADE
 );
-//crear tabla de compras si es que puedo comprar mas de un servicio  y quiero añadirlo en un registro de compras
+--crear tabla de compras si es que puedo comprar mas de un servicio  y quiero añadirlo en un registro de compras
 
-CREATE TABLE IF NOT EXISTS compras (
-    id_compra SERIAL PRIMARY KEY,
-    id_usuario INT NOT NULL,
-    id_servicio INT NOT NULL,
-    fecha_registro TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (id_usuario) REFERENCES usuarios(id_usuario),
-    FOREIGN KEY (id_servicio) REFERENCES servicios(id_servicio)
+CREATE TABLE compras (
+  id_compra SERIAL PRIMARY KEY,
+  id_usuario INT NOT NULL,
+  fecha_compra TIMESTAMP  NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
+--Tabla de compra_servicio relación muchos a muchos:
+
+CREATE TABLE compra_servicio (
+  id_compra INT,
+  id_servicio INT,
+  PRIMARY KEY (id_compra, id_servicio),
+  FOREIGN KEY (id_compra) REFERENCES compras (id_compra) ON DELETE CASCADE,
+  FOREIGN KEY (id_servicio) REFERENCES servicios (id_servicio) ON DELETE CASCADE
+);
 
 INSERT INTO usuarios (nombre, apellido, email, direccion, password, telefono, rol)
 VALUES ('Diego', 'Carvajal', 'diego@example.com', '123 Calle Principal', 'contraseñasegura', '123456789', 'admin');
@@ -115,6 +121,8 @@ show tables;
 SELECT * FROM usuarios;
 SELECT * FROM servicios;
 SELECT * FROM favoritos;
+SELECT * FROM compras;
+SELECT * FROM compra_servicio;
 
 delete  from servicios;
 
