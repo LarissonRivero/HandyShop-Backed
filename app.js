@@ -5,7 +5,7 @@ const cors = require('cors');
 const usuariosRoute = require('./src/routes/usuariosRoute');
 const serviciosRoute = require('./src/routes/serviciosRoute');
 const favRoute = require('./src/routes/favRoute');
-
+const comprasRoute = require('./src/routes/comprasRoute');
 
 app.use(cors());
 app.use(express.json());
@@ -20,6 +20,7 @@ app.get("/", (req, res) => {
 app.use("/usuarios", usuariosRoute);
 app.use("/servicios", serviciosRoute);
 app.use("/favoritos", favRoute);
+app.use("/compras", comprasRoute);
 
 app.use("*", (req, res) => {
     res.status(404).send("Error 404");
