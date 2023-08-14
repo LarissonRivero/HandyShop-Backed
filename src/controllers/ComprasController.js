@@ -6,7 +6,7 @@ const addCompras = async (req, res) => {
     try {
         const data = req.body;
         const resultado = await ComprasModel.anadirCompra(data);
-        enviarRespuestaExitosa(res, "se ha añadido la compra correctamente");
+        enviarRespuestaExitosa(res,{mensaje:"se ha añadido la compra correctamente",resultado});
     } catch (error) {
         enviarRespuestaError(res, 'Ha ocurrido un error al añadir la compra');
     }
