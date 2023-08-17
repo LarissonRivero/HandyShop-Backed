@@ -1,4 +1,4 @@
-const pool = require('../Config/db');
+const pool = require('../config/db');
 const format = require('pg-format');
 
 //agregar servicio a favoritos

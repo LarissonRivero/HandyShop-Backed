@@ -23,13 +23,17 @@ const getUsuario = async (req, res) => {
     if (!usuario) {
         return res.status(404).json({ message: "Usuario no encontrado" });
     }
-    const usuarioSinClave = {
-        email: usuario.email,
-        nombre: usuario.nombre,
-        apellido: usuario.apellido,
-        direccion: usuario.direccion,
-        telefono: usuario.telefono
-    };
+    const usuarioSinClave = 
+    {
+        usuario:{
+            id_usuario: usuario.id_usuario,
+            email: usuario.email,
+            nombre: usuario.nombre,
+            apellido: usuario.apellido,
+            direccion: usuario.direccion,
+            telefono: usuario.telefono
+        }
+    }
     res.json(usuarioSinClave);
 };
 
@@ -77,11 +81,27 @@ const modifyUsuario = async (req, res) => {
     }
 };
 
+const modificarPassword = async (req, res) => {
+    try {
+        const id = req.params.id;
+        const {password} = req.body;
+        const resultado = await UsuariosModel.modificarPass(id, password);
+        if (resultado) {
+            enviarRespuestaExitosa(res, 'Password modificado correctamente');
+        } else {
+            enviarRespuestaNoEncontrado(res, 'El password no fue encontrado');
+        }
+    } catch (error) {
+        enviarRespuestaError(res, 'Ha ocurrido un error al modificar el password');
+    }
+};
+
 
 module.exports = {
     addUsuario,
     getUsuario,
     login,
     deleteUsuario,
-    modifyUsuario
+    modifyUsuario,
+    modificarPassword
 };
