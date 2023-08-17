@@ -10,5 +10,6 @@ router.post("/login", ValidarData.middlewareVerificarCredencialesLogin, Usuarios
 router.get("/", Auth.verificarToken, Log.middlewareGetData, UsuariosController.getUsuario);
 router.delete("/:id", Auth.verificarToken ,UsuariosController.deleteUsuario);
 router.put("/:id", Auth.verificarToken,ValidarData.middlewareVerificarDatosPutUsuarios, UsuariosController.modifyUsuario);
+router.put("/pass/:id", Auth.verificarToken, ValidarData.middlewareVerificarPassword,UsuariosController.modificarPassword);
 
 module.exports = router;
